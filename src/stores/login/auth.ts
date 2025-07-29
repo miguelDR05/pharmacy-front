@@ -54,7 +54,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
 import { api, sanctumApi } from '@/boot/axios'; // Importa ambas instancias
-import { useRouter } from 'vue-router'; // useRouter solo es válido dentro de setup() o setup de un componente/composable.
+// import { useRouter } from 'vue-router'; // useRouter solo es válido dentro de setup() o setup de un componente/composable.
 
 import { usePermissionsStore } from './permissions';
 
@@ -65,17 +65,17 @@ export interface MenuItem {
   route?: string;
   permission: string;
   description?: string;
-  badge?: string | number;
+  badge?: string | number | undefined;
   badgeColor?: string;
   defaultOpen?: boolean;
-  children?: MenuItem[];
+  children?: MenuItem[] | undefined;
   order?: number;
   module?: string;
 }
 // /*
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null);
-  const router = useRouter(); // Asegúrate de que esto funciona en tu setup de Pinia.
+  // const router = useRouter(); // Asegúrate de que esto funciona en tu setup de Pinia.
   // Si no, puedes pasarlo como argumento al store desde el bootfile.
 
   async function login(email: string, password: string) {
@@ -562,8 +562,8 @@ export const useMenuStore = defineStore('menu', () => {
 
   const getMenuBreadcrumbs = (
     currentRoute: string,
-  ): { label: string; icon?: string; to?: string }[] => {
-    const breadcrumbs: { label: string; icon?: string; to?: string }[] = [
+  ): { label: string; icon?: string; to?: string | undefined }[] => {
+    const breadcrumbs: { label: string; icon?: string; to?: string | undefined }[] = [
       { label: 'Inicio', icon: 'home', to: '/' },
     ];
 
