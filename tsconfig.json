@@ -4,6 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+      "@interfaces/*": [".src/interfaces/*"],
+      "@api-resources/*": [".src/api-resources/*"],
       "@pages/*": ["./src/pages/*"],
       "@assets/*": ["./src/assets/*"],
       "@css/*": ["./src/css/*"],

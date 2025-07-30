@@ -1,9 +1,3 @@
-// src/api-resource/ApplicantObservationsApiResources.ts
-// No necesita cambios, ya que aquí solo defines las opciones, no las consumes.
-// Solo asegurarte de que tus 'paths' estén correctos con respecto a la baseURL de `api`.
-// Por ejemplo, si api.baseURL es `https://your-api.com/api/v1`,
-// entonces path: '/yocontrato/web/aplicant-observations' resultará en
-// `https://your-api.com/api/v1/yocontrato/web/aplicant-observations`
 import { HttpMethods, IHttpResourceOption } from '@composables/useFetchHttp';
 
 type KeyResource =
@@ -20,7 +14,7 @@ const resources: Record<KeyResource, IHttpResourceOption> = {
   },
   updateProduct: <IHttpResourceOption>{
     path: '/product',
-    method: HttpMethods.Put,
+    method: HttpMethods.Post,
   },
   deleteProduct: <IHttpResourceOption>{
     path: '/product',

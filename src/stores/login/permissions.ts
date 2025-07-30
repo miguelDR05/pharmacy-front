@@ -459,7 +459,7 @@ export const usePermissionsStore = defineStore('permissions', () => {
   };
 
   // Simulación de usuario actual (en producción vendría del AuthStore)
-  const initializeUserPermissions = async () => {
+  const initializeUserPermissions = () => {
     // Simular usuario con rol de administrador
     const currentUser: User = {
       id: '1',

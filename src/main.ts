@@ -35,7 +35,7 @@ const router = createRouter({
 });
 
 // Guard de navegación para verificar permisos
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   const permissionsStore = usePermissionsStore();
 
@@ -44,17 +44,17 @@ router.beforeEach(async (to, from, next) => {
   const isPublicRoute = publicRoutes.includes(to.path);
 
   // Si no está autenticado y trata de acceder a una ruta protegida
-  if (!authStore.isAuthenticated && !isPublicRoute) {
+  if (!authStore.user && !isPublicRoute) {
     return next('/login');
   }
 
   // Si está autenticado y trata de acceder al login, redirigir al dashboard
-  if (authStore.isAuthenticated && to.path === '/login') {
+  if (authStore.user && to.path === '/login') {
     return next('/');
   }
 
   // Verificar permisos de ruta
-  if (to.meta?.permission && authStore.isAuthenticated) {
+  if (to.meta?.permission && authStore.user) {
     const hasPermission = permissionsStore.canAccessRoute(to.meta.permission as string);
 
     if (!hasPermission) {
@@ -120,10 +120,10 @@ const initApp = async () => {
     const menuStore = useMenuStore();
 
     // Verificar estado de autenticación
-    await authStore.checkAuthStatus();
+    await authStore.fetchUser();
 
     // Si está autenticado, cargar permisos y menús
-    if (authStore.isAuthenticated) {
+    if (authStore.user) {
       await Promise.all([
         permissionsStore.loadPermissions(),
         permissionsStore.initializeUserPermissions(),
@@ -147,4 +147,4 @@ const initApp = async () => {
 };
 
 // Inicializar
-initApp();
+void initApp();

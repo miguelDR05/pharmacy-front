@@ -253,9 +253,11 @@
 import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import ProductDialog from './components/Form.vue';
-import { resources } from './composable/ApiResource';
+import { resources } from './api-resource/ApiResource';
 import { Product } from './interface/ProductInterfaces';
 import { useFetchHttp, IHttpResponse } from '@composables/useFetchHttp';
+import { useCombo } from '@composables/useCombo'; // Importa tu nuevo composable
+import { IComboItem } from '@interfaces/IComboItem'; // Importa la interfaz
 
 interface TableColumn {
   name: string;
@@ -275,8 +277,9 @@ interface ProductData {
   data: Array<any>; // O tipar esto más específicamente si conoces la estructura de cada observación
 }
 
-const { fetchHttpResource } = useFetchHttp();
 // Composables
+const { loadComboData } = useCombo();
+const { fetchHttpResource } = useFetchHttp();
 const $q = useQuasar();
 
 // Estados reactivos
@@ -308,19 +311,14 @@ const pagination = ref({
 });
 
 // Opciones para selects
-const categoryOptions = ref([
-  { label: 'Analgésicos', value: 1 },
-  { label: 'Antibióticos', value: 2 },
-  { label: 'Vitaminas', value: 3 },
-]);
+const categoryOptions = ref<IComboItem[]>([]);
+const labOptions = ref<IComboItem[]>([]);
+const typeOptions = ref<IComboItem[]>([]);
+const presentationOptions = ref<IComboItem[]>([]);
+const storageOptions = ref<IComboItem[]>([]);
+const statusOptions = ref<IComboItem[]>([]);
 
-const labOptions = ref([
-  { label: 'Laboratorio A', value: 1 },
-  { label: 'Laboratorio B', value: 2 },
-  { label: 'Laboratorio C', value: 3 },
-]);
-
-const stockStatusOptions = ref([
+const stockStatusOptions = ref<IComboItem[]>([
   { label: 'En Stock', value: 'in_stock' },
   { label: 'Stock Bajo', value: 'low_stock' },
   { label: 'Sin Stock', value: 'out_of_stock' },
@@ -403,33 +401,29 @@ const userPermissions = computed(() => {
 const hasPermission = (permission: string): boolean => {
   return userPermissions.value.includes(permission);
 };
-/*
-const loadProducts = async () => {
-  loading.value = true;
-  try {
-    // Simular llamada a API
-    const response = await simulateApiCall('/api/products', {
-      params: {
-        page: pagination.value.page,
-        per_page: pagination.value.rowsPerPage,
-        sort_by: pagination.value.sortBy,
-        sort_order: pagination.value.descending ? 'desc' : 'asc',
-        ...filters.value,
-      },
-    });
 
-    products.value = response.data;
-    pagination.value.rowsNumber = response.total;
+// Función para cargar todos los combos
+const loadAllCombos = async () => {
+  try {
+    // Carga las categorías
+    categoryOptions.value = await loadComboData('categoriesCombo');
+    console.log('Categorías cargadas:', categoryOptions.value);
+
+    // Carga los laboratorios
+    labOptions.value = await loadComboData('labsCombo');
+    console.log('Laboratorios cargados:', labOptions.value);
+
+    typeOptions.value = await loadComboData('productTypesCombo');
+    console.log('Tipo de productos cargados:', labOptions.value);
+
+    presentationOptions.value = await loadComboData('productPresentationsCombo');
+    console.log('Presentacion de productos cargados:', labOptions.value);
   } catch (error) {
-    $q.notify({
-      type: 'negative',
-      message: 'Error al cargar productos',
-    });
-  } finally {
-    loading.value = false;
+    // Los errores ya son notificados por useCombo, aquí solo puedes logear si necesitas
+    console.error('Fallo al cargar uno o más combos:', error);
   }
 };
-*/
+
 const loadProducts = async () => {
   try {
     loading.value = true;
@@ -675,7 +669,8 @@ const simulateApiCall = async (url: string, options: any = {}) => {
 // Lifecycle
 onMounted(async () => {
   console.log('Productos montados');
-
+  loading.value = true;
+  await loadAllCombos();
   await loadProducts();
 });
 </script>

@@ -15,15 +15,16 @@
         </div>
         <q-btn icon="close" flat round dense @click="closeDialog" :disable="saving" />
       </q-card-section>
-
       <!-- Contenido -->
+      {{ form }}
       <q-card-section>
         <q-form @submit="saveProduct" class="full-height" ref="formRef">
           <q-scroll-area style="height: calc(100vh - 135px)">
             <div class="q-py-sm">
               <div class="row">
-                <!-- Columna izquierda - Información básica -->
+                <!-- Columna izquierda  -->
                 <div class="col-md-6 col-sm-12 q-px-sm">
+                  <!-- Información básica -->
                   <q-card flat bordered class="q-pa-sm q-mb-md">
                     <q-card-section>
                       <div class="text-h6 text-primary q-px-xs q-mb-md">
@@ -265,8 +266,9 @@
                   </q-card>
                 </div>
 
-                <!-- Columna derecha - Stock y precio -->
+                <!-- Columna derecha -->
                 <div class="col-md-6 col-sm-12 q-px-sm">
+                  <!-- Stock y precio -->
                   <q-card flat bordered class="q-pa-sm q-mb-md">
                     <q-card-section>
                       <div class="text-h6 text-primary q-px-xs q-mb-md">
@@ -366,7 +368,7 @@
 
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-xs">
                           <q-input
-                            v-model="form.batch_number"
+                            v-model="form.batch"
                             label="Número de Lote"
                             outlined
                             hint="Número de lote del producto"
@@ -380,7 +382,7 @@
 
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-xs">
                           <q-input
-                            v-model="form.expiry_date"
+                            v-model="form.expiration_date"
                             label="Fecha de Vencimiento"
                             outlined
                             type="date"
@@ -424,7 +426,7 @@
 
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-xs">
                           <q-select
-                            v-model="form.storage_conditions"
+                            v-model="form.storage_condition_id"
                             :options="storageOptions"
                             label="Condiciones de Almacenamiento"
                             outlined
@@ -505,9 +507,10 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
-import { resources } from '../composable/ApiResource';
+import { resources } from '../api-resource/ApiResource';
 import { Product } from '../interface/ProductInterfaces';
 import { useFetchHttp, IHttpResponse } from '@composables/useFetchHttp';
+import { format } from 'node:path';
 
 // Props
 interface Props {
@@ -555,11 +558,11 @@ const form = ref<any>({
   image: '',
   pharmaceutical_form: '',
   description: '',
-  batch_number: '',
-  expiry_date: '',
+  batch: '',
+  expiration_date: '',
   manufacturing_date: '',
   concentration: '',
-  storage_conditions: null,
+  storage_condition_id: null,
   status: 'active',
   requires_prescription: false,
   is_controlled: false,
@@ -645,11 +648,11 @@ watch(
         image: newProduct.image || '',
         pharmaceutical_form: newProduct.pharmaceutical_form || '',
         description: newProduct.description || '',
-        batch_number: newProduct.batch_number || '',
-        expiry_date: newProduct.expiry_date || '',
+        batch: newProduct.batch || '',
+        expiration_date: newProduct.expiration_date || '',
         manufacturing_date: newProduct.manufacturing_date || '',
         concentration: newProduct.concentration || '',
-        storage_conditions: newProduct.storage_conditions || null,
+        storage_condition_id: newProduct.storage_condition_id || null,
         status: newProduct.status || 'active',
         requires_prescription: newProduct.requires_prescription || false,
         is_controlled: newProduct.is_controlled || false,
@@ -687,11 +690,11 @@ const resetForm = () => {
     image: '',
     pharmaceutical_form: '',
     description: '',
-    batch_number: '',
-    expiry_date: '',
+    batch: '',
+    expiration_date: '',
     manufacturing_date: '',
     concentration: '',
-    storage_conditions: null,
+    storage_condition_id: null,
     status: 'active',
     requires_prescription: false,
     is_controlled: false,
@@ -849,30 +852,41 @@ const saveProduct = async () => {
   saving.value = true;
 
   try {
-    const resource = props.isEdit ? resources.updateProduct : resources.createProduct;
+    let resource = resources.createProduct;
 
-    if (props.isEdit) {
-      resource.paramsRoute = [props.product.id];
-    }
-
-    // resource.data = form.value;
     // --- CAMBIOS CLAVE AQUÍ: Crear FormData ---
     const formData = new FormData();
 
-    // Añadir todos los campos del formulario al FormData
-    // Asegúrate de que form.value contenga todos los datos excepto la imagen (o la imagen en su formato de File)
+    if (props.isEdit) {
+      resource = resources.updateProduct;
+      resource.paramsRoute = [props.product.id];
+      formData.append('_method', 'PUT');
+    }
+
     for (const key in form.value) {
-      // Si la clave es 'image' y su valor es un File, lo añadimos directamente
-      if (key === 'image' && form.value[key] instanceof File) {
-        formData.append(key, form.value[key], form.value[key].name);
-      } else if (key === 'requires_prescription' || key === 'is_controlled') {
-        // Para booleanos, asegúrate de enviarlos como "true" o "false" si tu backend lo espera como string
-        // o si es un 0/1 si tu backend lo espera así.
-        // Por defecto, formData.append(key, true) lo convierte a "true".
-        formData.append(key, form.value[key] ? '1' : '0'); // Ejemplo si el backend espera 0/1
-        // formData.append(key, form.value[key]); // Si el backend puede parsear "true"/"false" directamente
-      } else if (form.value[key] !== null && form.value[key] !== undefined) {
-        formData.append(key, form.value[key]);
+      const value = form.value[key];
+
+      // Excluir la imagen si es una URL existente (string)
+      if (key === 'image') {
+        // Si el valor es una instancia de File, significa que el usuario seleccionó una nueva imagen.
+        if (value instanceof File) {
+          formData.append(key, value, value.name);
+        }
+        // Si el valor es un string (URL existente) o nulo/indefinido, NO lo añadimos al FormData.
+        // Esto le dice al backend que el campo 'image' no ha sido modificado.
+        continue; // Pasa a la siguiente iteración del bucle
+      }
+
+      // Manejar booleanos
+      if (key === 'requires_prescription' || key === 'is_controlled') {
+        formData.append(key, value ? '1' : '0');
+      } else if (value !== null && value !== undefined) {
+        // Para todos los demás campos (no imagen, no booleanos específicos)
+        // Asegúrate de que los arrays o objetos complejos (si los hubiera) se serialicen correctamente
+        // Los objetos y arrays complejos se enviarán como '[object Object]' si no se stringifican.
+        // Si tienes arrays o objetos anidados, necesitarás JSON.stringify(value) o aplanarlos.
+        // Para valores simples, esto está bien:
+        formData.append(key, value);
       }
     }
 
