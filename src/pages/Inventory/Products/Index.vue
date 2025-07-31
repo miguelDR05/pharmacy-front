@@ -256,8 +256,10 @@ import ProductDialog from './components/Form.vue';
 import { resources } from './api-resource/ApiResource';
 import { Product } from './interface/ProductInterfaces';
 import { useFetchHttp, IHttpResponse } from '@composables/useFetchHttp';
-import { useCombo } from '@composables/useCombo'; // Importa tu nuevo composable
-import { IComboItem } from '@interfaces/IComboItem'; // Importa la interfaz
+import { useCombo } from '@composables/useCombo';
+import { IComboItem } from '@interfaces/IComboItem';
+import { useComboStore } from '@stores/combos/comboStore';
+import { ComboDataKey } from '@/types/ComboDataKeys';
 
 interface TableColumn {
   name: string;
@@ -278,6 +280,9 @@ interface ProductData {
 }
 
 // Composables
+// Instancia el store de Pinia
+const comboStore = useComboStore();
+// Instancia el composable para cargar datos de la API
 const { loadComboData } = useCombo();
 const { fetchHttpResource } = useFetchHttp();
 const $q = useQuasar();
@@ -406,18 +411,36 @@ const hasPermission = (permission: string): boolean => {
 const loadAllCombos = async () => {
   try {
     // Carga las categorías
+    let comboKey: ComboDataKey = 'categories';
     categoryOptions.value = await loadComboData('categoriesCombo');
+    comboStore.setComboData(comboKey, categoryOptions.value);
     console.log('Categorías cargadas:', categoryOptions.value);
 
     // Carga los laboratorios
+    comboKey = 'labs';
     labOptions.value = await loadComboData('labsCombo');
+    comboStore.setComboData(comboKey, labOptions.value);
     console.log('Laboratorios cargados:', labOptions.value);
 
+    // Carga de typo de options
+    comboKey = 'productTypes';
     typeOptions.value = await loadComboData('productTypesCombo');
-    console.log('Tipo de productos cargados:', labOptions.value);
+    comboStore.setComboData(comboKey, typeOptions.value);
+    console.log('Tipo de productos cargados:', typeOptions.value);
 
+    // Carga de presentation de productos
+    comboKey = 'productPresentations';
     presentationOptions.value = await loadComboData('productPresentationsCombo');
+    comboStore.setComboData(comboKey, presentationOptions.value);
     console.log('Presentacion de productos cargados:', labOptions.value);
+
+    // Carga de almacenamiento
+    comboKey = 'storageConditions';
+    storageOptions.value = await loadComboData('storageConditionsCombo');
+    comboStore.setComboData(comboKey, storageOptions.value);
+    console.log('Almacenamientos cargados:', labOptions.value);
+
+    // Carga de estados
   } catch (error) {
     // Los errores ya son notificados por useCombo, aquí solo puedes logear si necesitas
     console.error('Fallo al cargar uno o más combos:', error);

@@ -16,7 +16,6 @@
         <q-btn icon="close" flat round dense @click="closeDialog" :disable="saving" />
       </q-card-section>
       <!-- Contenido -->
-      {{ form }}
       <q-card-section>
         <q-form @submit="saveProduct" class="full-height" ref="formRef">
           <q-scroll-area style="height: calc(100vh - 135px)">
@@ -505,12 +504,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, nextTick } from 'vue';
+import { ref, watch, computed, nextTick, onMounted, onBeforeMount } from 'vue';
 import { useQuasar } from 'quasar';
 import { resources } from '../api-resource/ApiResource';
 import { Product } from '../interface/ProductInterfaces';
-import { useFetchHttp, IHttpResponse } from '@composables/useFetchHttp';
-import { format } from 'node:path';
+import { useFetchHttp } from '@composables/useFetchHttp';
+import { IComboItem } from '@interfaces/IComboItem'; // Importa la interfaz
+import { useComboStore } from '@stores/combos/comboStore';
 
 // Props
 interface Props {
@@ -531,6 +531,8 @@ const emit = defineEmits<{
 }>();
 
 // Composables
+// Instancia el store de Pinia
+const comboStore = useComboStore();
 const { fetchHttpResource } = useFetchHttp();
 const $q = useQuasar();
 
@@ -569,59 +571,17 @@ const form = ref<any>({
 });
 
 // Opciones para selects
-const categoryOptions = ref([
-  { label: 'Analgésicos', value: 1 },
-  { label: 'Antibióticos', value: 2 },
-  { label: 'Vitaminas', value: 3 },
-  { label: 'Antiinflamatorios', value: 4 },
-  { label: 'Antihipertensivos', value: 5 },
-  { label: 'Antihistamínicos', value: 6 },
-  { label: 'Digestivos', value: 7 },
-]);
+const categoryOptions = ref<IComboItem[]>([]);
 
-const labOptions = ref([
-  { label: 'Laboratorio Bayer', value: 1 },
-  { label: 'Laboratorio Pfizer', value: 2 },
-  { label: 'Laboratorio Roche', value: 3 },
-  { label: 'Laboratorio Novartis', value: 4 },
-  { label: 'Laboratorio GSK', value: 5 },
-  { label: 'Laboratorio Abbott', value: 6 },
-  { label: 'Laboratorio Merck', value: 7 },
-]);
+const labOptions = ref<IComboItem[]>([]);
 
-const typeOptions = ref([
-  { label: 'Genérico', value: 1 },
-  { label: 'Marca Original', value: 2 },
-  { label: 'Biosimilar', value: 3 },
-  { label: 'Magistral', value: 4 },
-]);
+const typeOptions = ref<IComboItem[]>([]);
 
-const presentationOptions = ref([
-  { label: 'Tableta', value: 1 },
-  { label: 'Cápsula', value: 2 },
-  { label: 'Jarabe', value: 3 },
-  { label: 'Ampolla', value: 4 },
-  { label: 'Crema', value: 5 },
-  { label: 'Gotas', value: 6 },
-  { label: 'Spray', value: 7 },
-  { label: 'Supositorio', value: 8 },
-  { label: 'Inyectable', value: 9 },
-]);
+const presentationOptions = ref<IComboItem[]>([]);
 
-const storageOptions = ref([
-  { label: 'Temperatura Ambiente (15-25°C)', value: 'room_temperature' },
-  { label: 'Refrigeración (2-8°C)', value: 'refrigerated' },
-  { label: 'Congelación (-18°C)', value: 'frozen' },
-  { label: 'Lugar Seco', value: 'dry_place' },
-  { label: 'Proteger de la Luz', value: 'protect_from_light' },
-]);
+const storageOptions = ref<IComboItem[]>([]);
 
-const statusOptions = ref([
-  { label: 'Activo', value: 'active' },
-  { label: 'Inactivo', value: 'inactive' },
-  { label: 'Descontinuado', value: 'discontinued' },
-  { label: 'Agotado', value: 'out_of_stock' },
-]);
+const statusOptions = ref<IComboItem[]>([]);
 
 // Computed
 const isOpen = computed({
@@ -663,7 +623,6 @@ watch(
       resetForm();
     }
   },
-  // { immediate: true },
 );
 
 watch(isOpen, (newValue) => {
@@ -971,22 +930,21 @@ const closeDialog = () => {
   }
 };
 
-// Simular llamada API
-const simulateApiCall = async (url: string, options: any = {}) => {
-  // Simular delay de red
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
-  // Simular respuesta exitosa
-  return {
-    success: true,
-    data: {
-      id: props.isEdit ? props.product.id : Date.now(),
-      ...form.value,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-  };
-};
+// Lifecycle
+onBeforeMount(() => {
+  console.log('Combos montados');
+  categoryOptions.value = comboStore.getComboData('categories');
+  labOptions.value = comboStore.getComboData('labs');
+  typeOptions.value = comboStore.getComboData('productTypes');
+  presentationOptions.value = comboStore.getComboData('productPresentations');
+  storageOptions.value = comboStore.getComboData('storageConditions');
+  statusOptions.value = [
+    { label: 'Activo', value: 'active' },
+    { label: 'Inactivo', value: 'inactive' },
+    { label: 'Descontinuado', value: 'discontinued' },
+    { label: 'Agotado', value: 'out_of_stock' },
+  ];
+});
 </script>
 
 <style lang="scss" scoped>

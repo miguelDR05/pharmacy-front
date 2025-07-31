@@ -18,7 +18,8 @@ type ComboResourceKey =
   | 'clientsCombo'
   | 'suppliersCombo'
   | 'purchaseDocumentTypesCombo'
-  | 'productsCombo'; // Asegúrate de que esta clave exista en resources.ts
+  | 'productsCombo'
+  | 'storageConditionsCombo'; // Asegúrate de que esta clave exista en resources.ts
 
 export function useCombo() {
   const $q = useQuasar();
