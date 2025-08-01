@@ -1,273 +1,258 @@
 <template>
-  <q-page class="q-pa-md">
-    <!-- Header con título y acciones -->
-    <div class="row items-center justify-between q-mb-lg">
-      <div>
-        <h4 class="text-h4 text-weight-medium q-ma-none text-grey-8">
-          <q-icon name="inventory_2" class="q-mr-sm text-primary" />
-          Productos
-        </h4>
-        <p class="text-grey-6 q-mb-none">Gestión de inventario farmacéutico</p>
-      </div>
-
-      <div class="row q-gutter-sm">
-        <q-btn
-          v-if="hasPermission('products.create')"
-          color="primary"
-          icon="add"
-          label="Nuevo Producto"
-          @click="openCreateDialog"
-          class="q-px-lg"
-          unelevated
-        />
-        <q-btn
-          v-if="selectedProducts.length > 0 && hasPermission('products.delete')"
-          color="negative"
-          icon="delete"
-          :label="`Eliminar (${selectedProducts.length})`"
-          @click="confirmMultipleDelete"
-          outline
-        />
-        <q-btn icon="refresh" @click="loadProducts" flat round class="text-grey-6">
-          <q-tooltip>Actualizar</q-tooltip>
-        </q-btn>
-      </div>
+  <!-- Header con título y acciones -->
+  <div class="row items-center justify-between q-mb-md">
+    <div>
+      <h4 class="text-h4 text-weight-medium q-ma-none text-grey-8">
+        <q-icon name="inventory_2" class="q-mr-sm text-primary" />
+        Productos
+      </h4>
+      <p class="text-grey-6 q-mb-none">Gestión de inventario farmacéutico</p>
     </div>
 
-    <!-- Filtros y búsqueda -->
-    <q-card flat class="q-mb-md">
-      <q-card-section class="q-pa-md">
-        <div class="row q-gutter-md items-end">
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <q-input
-              v-model="filters.search"
-              label="Buscar productos"
-              outlined
-              dense
-              clearable
-              debounce="500"
-              @update:model-value="loadProducts"
-            >
-              <template v-slot:prepend>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-          </div>
+    <div class="row q-gutter-sm">
+      <q-btn
+        v-if="hasPermission('products.create')"
+        color="primary"
+        icon="add"
+        label="Nuevo Producto"
+        @click="openCreateDialog"
+        class="q-px-lg"
+        unelevated
+      />
+      <q-btn
+        v-if="selectedProducts.length > 0 && hasPermission('products.delete')"
+        color="negative"
+        icon="delete"
+        :label="`Eliminar (${selectedProducts.length})`"
+        @click="confirmMultipleDelete"
+        outline
+      />
+      <q-btn icon="refresh" @click="loadProducts" flat round class="text-grey-6">
+        <q-tooltip>Actualizar</q-tooltip>
+      </q-btn>
+    </div>
+  </div>
 
-          <div class="col-md-2 col-sm-6 col-xs-12">
-            <q-select
-              v-model="filters.category_id"
-              :options="categoryOptions"
-              label="Categoría"
-              outlined
-              dense
-              clearable
-              emit-value
-              map-options
-              @update:model-value="loadProducts"
-            />
-          </div>
-
-          <div class="col-md-2 col-sm-6 col-xs-12">
-            <q-select
-              v-model="filters.lab_id"
-              :options="labOptions"
-              label="Laboratorio"
-              outlined
-              dense
-              clearable
-              emit-value
-              map-options
-              @update:model-value="loadProducts"
-            />
-          </div>
-
-          <div class="col-md-2 col-sm-6 col-xs-12">
-            <q-select
-              v-model="filters.stock_status"
-              :options="stockStatusOptions"
-              label="Estado Stock"
-              outlined
-              dense
-              clearable
-              emit-value
-              map-options
-              @update:model-value="loadProducts"
-            />
-          </div>
+  <!-- Filtros y búsqueda -->
+  <q-card flat class="q-mb-md">
+    <q-card-section class="q-px-none q-py-md">
+      <div class="row q-gutter-y-sm items-center justify-start">
+        <div class="col-md-3 col-sm-6 col-xs-12 q-px-xs">
+          <!--
+            ? activar por preferencia
+            @update:model-value="loadProducts"
+           -->
+          <q-input
+            v-model="filters.search"
+            label="Buscar productos"
+            outlined
+            dense
+            clearable
+            debounce="500"
+          >
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
         </div>
-      </q-card-section>
-    </q-card>
 
-    <!-- Tabla de productos -->
-    <q-card flat>
-      <!--
-
-      flat bordered
-      title="Treats"
-      :rows="rows"
-      :columns="columns"
-      row-key="index"
-      virtual-scroll
-      v-model:pagination="pagination"
-      :rows-per-page-options="[0]"
-
-      :rows-per-page-options="[10, 25, 50, 100]"
-      -->
-      <q-table
-        flat
-        bordered
-        :rows="products"
-        :columns="columns"
-        row-key="id"
-        :loading="loading"
-        @request="onRequest"
-        selection="multiple"
-        v-model:selected="selectedProducts"
-        class="product-table"
-        virtual-scroll
-        v-model:pagination="pagination"
-        :rows-per-page-options="[0]"
-      >
-        <!-- Slot para el estado del stock -->
-        <template v-slot:body-cell-stock="props">
-          <q-td :props="props">
-            <q-chip
-              :color="getStockColor(props.value)"
-              text-color="white"
-              size="sm"
-              :icon="getStockIcon(props.value)"
-            >
-              {{ props.value }}
-            </q-chip>
-          </q-td>
-        </template>
-
-        <!-- Slot para el precio -->
-        <template v-slot:body-cell-price="props">
-          <q-td :props="props">
-            <span class="text-weight-medium text-green-8">
-              S/ {{ parseFloat(props.value).toFixed(2) }}
-            </span>
-          </q-td>
-        </template>
-
-        <!-- Slot para la imagen -->
-        <template v-slot:body-cell-image="props">
-          <q-td :props="props">
-            <q-avatar
-              v-if="props.row.image"
-              size="40px"
-              rounded
-              class="cursor-pointer"
-              @click="showImageDialog(props.row.image)"
-            >
-              <img :src="props.row.image" :alt="props.row.name" />
-            </q-avatar>
-            <q-icon v-else name="image_not_supported" size="24px" color="grey-5" />
-          </q-td>
-        </template>
-
-        <!-- Slot para el código -->
-        <template v-slot:body-cell-code="props">
-          <q-td :props="props">
-            <q-chip
-              outline
-              color="primary"
-              size="sm"
-              clickable
-              @click="copyToClipboard(props.value)"
-            >
-              {{ props.value }}
-              <q-tooltip>Click para copiar</q-tooltip>
-            </q-chip>
-          </q-td>
-        </template>
-
-        <!-- Slot para las acciones -->
-        <template v-slot:body-cell-actions="props">
-          <q-td :props="props">
-            <div class="row justify-center q-gutter-xs">
-              <q-btn
-                v-if="hasPermission('products.view')"
-                icon="visibility"
-                size="sm"
-                flat
-                round
-                color="info"
-                @click="viewProduct(props.row)"
-              >
-                <q-tooltip>Ver detalles</q-tooltip>
-              </q-btn>
-
-              <q-btn
-                v-if="hasPermission('products.edit')"
-                icon="edit"
-                size="sm"
-                flat
-                round
-                color="warning"
-                @click="editProduct(props.row)"
-              >
-                <q-tooltip>Editar</q-tooltip>
-              </q-btn>
-
-              <q-btn
-                v-if="hasPermission('products.delete')"
-                icon="delete"
-                size="sm"
-                flat
-                round
-                color="negative"
-                @click="confirmDelete(props.row)"
-              >
-                <q-tooltip>Eliminar</q-tooltip>
-              </q-btn>
-            </div>
-          </q-td>
-        </template>
-
-        <!-- Slot cuando no hay datos -->
-        <template v-slot:no-data="{ message }">
-          <div class="full-width row flex-center text-grey-6 q-gutter-sm">
-            <q-icon size="2em" name="inventory_2" />
-            <span class="text-subtitle1">
-              {{ message || 'No hay productos disponibles' }}
-            </span>
-          </div>
-        </template>
-      </q-table>
-    </q-card>
-
-    <!-- Dialog para crear/editar producto -->
-    <ProductDialog
-      v-model="showDialog"
-      :product="selectedProduct"
-      :is-edit="isEdit"
-      @saved="onProductSaved"
-    />
-
-    <!-- Dialog para ver imagen -->
-    <q-dialog v-model="showImagePreview">
-      <q-card>
-        <q-card-section class="text-center">
-          <img
-            :src="previewImage"
-            class="img-responsive"
-            style="max-height: 400px; max-width: 100%"
+        <div class="col-md-2 col-sm-6 col-xs-12 q-px-xs">
+          <q-select
+            v-model="filters.category_id"
+            :options="categoryOptions"
+            label="Categoría"
+            outlined
+            dense
+            clearable
+            emit-value
+            map-options
+            @update:model-value="loadProducts"
           />
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Cerrar" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-  </q-page>
+        </div>
+
+        <div class="col-md-2 col-sm-6 col-xs-12 q-px-xs">
+          <q-select
+            v-model="filters.lab_id"
+            :options="labOptions"
+            label="Laboratorio"
+            outlined
+            dense
+            clearable
+            emit-value
+            map-options
+            @update:model-value="loadProducts"
+          />
+        </div>
+
+        <div class="col-md-2 col-sm-6 col-xs-12 q-px-xs">
+          <q-select
+            v-model="filters.stock_status"
+            :options="stockStatusOptions"
+            label="Estado Stock"
+            outlined
+            dense
+            clearable
+            emit-value
+            map-options
+            @update:model-value="loadProducts"
+          />
+        </div>
+      </div>
+    </q-card-section>
+  </q-card>
+
+  <!-- Tabla de productos -->
+  <q-card flat>
+    <!--
+      ? activar por preferencia
+      :rows-per-page-options="[10, 25, 50, 100]"
+      @request="onRequest"
+      :pagination="pagination"
+      -->
+    <q-table
+      class="my-sticky-virtscroll-table"
+      :class="{ 'dark-thead': Dark.isActive }"
+      virtual-scroll
+      flat
+      bordered
+      :rows="products"
+      :columns="columns"
+      row-key="id"
+      :loading="loading"
+      @request="onRequest"
+      selection="multiple"
+      v-model:selected="selectedProducts"
+      :filter="filters.search"
+    >
+      <!-- Slot para el estado del stock -->
+      <template v-slot:body-cell-stock="props">
+        <q-td :props="props">
+          <q-chip
+            :color="getStockColor(props.value)"
+            text-color="white"
+            size="sm"
+            :icon="getStockIcon(props.value)"
+          >
+            {{ props.value }}
+          </q-chip>
+        </q-td>
+      </template>
+
+      <!-- Slot para el precio -->
+      <template v-slot:body-cell-price="props">
+        <q-td :props="props">
+          <span class="text-weight-medium text-green-8">
+            S/ {{ parseFloat(props.value).toFixed(2) }}
+          </span>
+        </q-td>
+      </template>
+
+      <!-- Slot para la imagen -->
+      <template v-slot:body-cell-image="props">
+        <q-td :props="props">
+          <q-avatar
+            v-if="props.row.image"
+            size="40px"
+            rounded
+            class="cursor-pointer"
+            @click="showImageDialog(props.row.image)"
+          >
+            <img :src="props.row.image" :alt="props.row.name" />
+          </q-avatar>
+          <q-icon v-else name="image_not_supported" size="24px" color="grey-5" />
+        </q-td>
+      </template>
+
+      <!-- Slot para el código -->
+      <template v-slot:body-cell-code="props">
+        <q-td :props="props">
+          <q-chip outline color="primary" size="sm" clickable @click="copyToClipboard(props.value)">
+            {{ props.value }}
+            <q-tooltip>Click para copiar</q-tooltip>
+          </q-chip>
+        </q-td>
+      </template>
+
+      <!-- Slot para las acciones -->
+      <template v-slot:body-cell-actions="props">
+        <q-td :props="props">
+          <div class="row justify-center q-gutter-xs">
+            <q-btn
+              v-if="hasPermission('products.view')"
+              icon="visibility"
+              size="sm"
+              flat
+              round
+              color="info"
+              @click="viewProduct(props.row)"
+            >
+              <q-tooltip>Ver detalles</q-tooltip>
+            </q-btn>
+
+            <q-btn
+              v-if="hasPermission('products.edit')"
+              icon="edit"
+              size="sm"
+              flat
+              round
+              color="warning"
+              @click="editProduct(props.row)"
+            >
+              <q-tooltip>Editar</q-tooltip>
+            </q-btn>
+
+            <q-btn
+              v-if="hasPermission('products.delete')"
+              icon="delete"
+              size="sm"
+              flat
+              round
+              color="negative"
+              @click="confirmDelete(props.row)"
+            >
+              <q-tooltip>Eliminar</q-tooltip>
+            </q-btn>
+          </div>
+        </q-td>
+      </template>
+
+      <template v-slot:loading>
+        <q-inner-loading showing color="primary-color">
+          <q-spinner-hourglass size="3em" />
+          <span class="text-subtitle1"> cargando... </span>
+        </q-inner-loading>
+      </template>
+    </q-table>
+  </q-card>
+
+  <!-- Dialog para crear/editar producto -->
+  <ProductDialog
+    v-model="showDialog"
+    :product="selectedProduct"
+    :is-edit="isEdit"
+    @saved="onProductSaved"
+  />
+
+  <!-- Dialog para ver imagen -->
+  <q-dialog v-model="showImagePreview">
+    <q-card>
+      <q-card-section class="text-center">
+        <img
+          :src="previewImage"
+          class="img-responsive"
+          style="max-height: 400px; max-width: 100%"
+        />
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn flat label="Cerrar" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { useQuasar } from 'quasar';
+import { useQuasar, Dark } from 'quasar';
 import ProductDialog from './components/Form.vue';
 import { resources } from './api-resource/ApiResource';
 import { Product } from './interface/ProductInterfaces';
@@ -690,53 +675,98 @@ onMounted(async () => {
 });
 </script>
 
-<style lang="scss" scoped>
-.product-table {
-  /* height or max-height is important */
+<style lang="scss">
+.my-sticky-virtscroll-table {
+  // define altura y scroll
   height: calc(100vh - 300px);
-
-  .q-table__top,
-  .q-table__bottom,
-  .thead tr:first-child th {
-    padding: 12px 16px;
-    background-color: #00b4ff;
-  }
-
-  .thead tr th {
+  // encabezado sticky
+  thead tr th {
     position: sticky;
-    z-index: 1;
-  }
-
-  /* this will be the loading indicator */
-  .thead tr:last-child th {
-    top: 48px;
-  }
-  /* height of all previous header rows */
-
-  .thead tr:first-child th {
     top: 0;
+    z-index: 2;
+    background-color: $white; // fondo del header
+    font-weight: 600;
+    padding: 12px 16px;
+    color: #424242;
+    font-weight: 600;
   }
 
-  /* prevent scrolling behind sticky top row on focus */
-  .tbody {
-    scroll-margin-top: 48px;
+  // sección superior e inferior (botones, filtros, etc.)
+  .q-q-table__middle,
+  .q-table__bottom {
+    padding: 12px 16px;
+    color: #424242;
   }
-  /* height of all previous header rows */
 
-  // .q-table__top,
-  // .q-table__bottom {
-  //   padding: 12px 16px;
-  // }
+  // separación visual entre encabezado y contenido
+  tbody td {
+    padding: 8px 16px;
+    border-bottom: 1px solid #e0e0e0;
+  }
 
-  // .q-table tbody td {
-  //   padding: 8px 16px;
-  // }
+  // efecto hover en filas
+  tbody tr:hover {
+    background-color: #f5f5f5;
+  }
 
-  // .q-table thead th {
-  //   padding: 12px 16px;
-  //   font-weight: 600;
-  //   color: #424242;
-  // }
+  // cuando la tabla está vacía
+  .q-table__bottom--nodata {
+    background-color: $white;
+    color: $dark-surface;
+    text-align: center;
+    padding: 16px;
+  }
+
+  .q-table__middle,
+  .q-virtual-scroll,
+  .q-virtual-scroll--vertical,
+  .scroll {
+    // Scrollbar claro por defecto
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: #c0c0c0;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: #f0f0f0;
+    }
+  }
+
+  // modo dark
+  &.dark-thead {
+    thead tr th {
+      background-color: $dark;
+      color: $white;
+    }
+
+    .q-q-table__middle,
+    .q-table__bottom {
+      background-color: $dark;
+      padding: 12px 16px;
+      color: $white;
+    }
+    tbody tr:hover {
+      background-color: $dark-surface;
+    }
+
+    .q-table__middle,
+    .q-virtual-scroll,
+    .q-virtual-scroll--vertical,
+    .scroll {
+      &::-webkit-scrollbar-thumb {
+        background-color: #555;
+      }
+
+      &::-webkit-scrollbar-track {
+        background-color: #2c2c2c;
+      }
+    }
+  }
 }
 
 .q-card {

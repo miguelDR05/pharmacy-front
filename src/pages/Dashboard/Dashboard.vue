@@ -704,7 +704,7 @@ onMounted(() => {
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: $secondary-color;
+    background: $secondary;
     border-radius: 12px;
     color: $text-primary;
     font-weight: 500;
@@ -736,7 +736,7 @@ onMounted(() => {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, $primary-color, $accent-color);
+    background: linear-gradient(90deg, $primary, $accent-color);
   }
 
   &:hover {
@@ -756,7 +756,7 @@ onMounted(() => {
   flex-shrink: 0;
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, $primary-color, lighten($primary-color, 10%));
+  background: linear-gradient(135deg, $primary, lighten($primary, 10%));
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -906,7 +906,7 @@ onMounted(() => {
   }
 
   :deep(.q-table tbody tr:hover) {
-    background-color: $secondary-color;
+    background-color: $secondary;
   }
 
   :deep(.q-table tbody td) {
@@ -917,7 +917,7 @@ onMounted(() => {
 
 .amount {
   font-weight: 600;
-  color: $primary-color;
+  color: $primary;
 }
 
 .stock-indicator {

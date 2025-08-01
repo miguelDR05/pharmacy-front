@@ -313,7 +313,9 @@
           leave-active-class="animated fadeOutLeft"
           mode="out-in"
         >
-          <component :is="Component" />
+          <q-page class="route-page q-pa-md" style="min-height: calc(100vh - 105px)">
+            <component :is="Component" />
+          </q-page>
         </transition>
       </router-view>
     </q-page-container>
@@ -751,7 +753,7 @@ onMounted(async () => {
 <style lang="scss" scoped>
 // Header Styles
 .modern-header {
-  background: linear-gradient(135deg, $primary-color 0%, darken($primary-color, 10%) 100%);
+  background: linear-gradient(135deg, $primary 0%, darken($primary, 10%) 100%);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
@@ -905,7 +907,7 @@ onMounted(async () => {
 
   .unread {
     background: rgba(0, 180, 166, 0.05);
-    border-left: 3px solid $primary-color;
+    border-left: 3px solid $primary;
   }
 }
 
@@ -929,7 +931,7 @@ onMounted(async () => {
 .drawer-header {
   padding: 20px;
   border-bottom: 1px solid #e9ecef;
-  background: linear-gradient(135deg, $secondary-color 0%, lighten($secondary-color, 3%) 100%);
+  background: linear-gradient(135deg, $secondary 0%, lighten($secondary, 3%) 100%);
 
   .dark-drawer & {
     background: linear-gradient(135deg, $dark-bg 0%, lighten($dark-bg, 5%) 100%);
@@ -951,7 +953,7 @@ onMounted(async () => {
     }
 
     .profile-avatar {
-      border: 3px solid $primary-color;
+      border: 3px solid $primary;
       transition: all 0.3s ease;
 
       &:hover {
@@ -1013,7 +1015,7 @@ onMounted(async () => {
       top: 0;
       bottom: 0;
       width: 4px;
-      background: $primary-color;
+      background: $primary;
       transform: scaleY(0);
       transition: transform 0.3s ease;
     }
@@ -1029,7 +1031,7 @@ onMounted(async () => {
 
     &.active {
       background: linear-gradient(135deg, rgba(0, 180, 166, 0.15) 0%, rgba(0, 180, 166, 0.08) 100%);
-      color: $primary-color;
+      color: $primary;
       font-weight: 600;
 
       &::before {
@@ -1037,7 +1039,7 @@ onMounted(async () => {
       }
 
       :deep(.q-item__section--avatar .q-icon) {
-        color: $primary-color;
+        color: $primary;
       }
     }
 
@@ -1077,11 +1079,11 @@ onMounted(async () => {
       background: rgba(0, 180, 166, 0.05);
 
       :deep(.expansion-header) {
-        color: $primary-color;
+        color: $primary;
         font-weight: 600;
 
         .q-icon {
-          color: $primary-color;
+          color: $primary;
         }
       }
     }
@@ -1117,7 +1119,7 @@ onMounted(async () => {
 
   .mini-toggle {
     background: rgba(0, 180, 166, 0.1);
-    color: $primary-color;
+    color: $primary;
     transition: all 0.3s ease;
 
     &:hover {
@@ -1148,11 +1150,11 @@ onMounted(async () => {
       transition: color 0.3s ease;
 
       &:hover {
-        color: $primary-color;
+        color: $primary;
       }
 
       &.breadcrumb-active {
-        color: $primary-color;
+        color: $primary;
         font-weight: 600;
       }
     }
@@ -1163,6 +1165,10 @@ onMounted(async () => {
     }
   }
 }
+// Page
+.route-page {
+  min-height: 600px;
+}
 
 // Loading Overlay
 .loading-content {
@@ -1172,7 +1178,7 @@ onMounted(async () => {
   gap: 16px;
 
   .loading-text {
-    color: $primary-color;
+    color: $primary;
     font-size: 16px;
     font-weight: 600;
   }

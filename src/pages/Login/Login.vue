@@ -1,150 +1,3 @@
-<!-- <template>
-  <div class="login-container">
-    <q-card class="login-card">
-      <q-card-section class="text-center">
-        <h2 class="login-title">Bienvenido</h2>
-        <p class="text-subtitle2">Inicia sesión para continuar</p>
-      </q-card-section>
-
-      <q-card-section>
-        <q-form @submit.prevent="handleLogin">
-          <div class="input-group">
-            <q-input
-              v-model="email"
-              label="Correo electrónico"
-              filled
-              lazy-rules
-              :rules="[(val) => !!val || 'El correo es requerido']"
-              class="animated-input"
-              type="email"
-            />
-          </div>
-
-          <div class="input-group q-mt-md">
-            <q-input
-              v-model="password"
-              label="Contraseña"
-              filled
-              lazy-rules
-              :type="isPwd ? 'password' : 'text'"
-              :rules="[(val) => !!val || 'La contraseña es requerida']"
-              class="animated-input"
-            >
-              <template #append>
-                <q-icon
-                  :name="isPwd ? 'visibility_off' : 'visibility'"
-                  class="cursor-pointer"
-                  @click="isPwd = !isPwd"
-                />
-              </template>
-            </q-input>
-          </div>
-
-          <q-btn
-            label="Iniciar sesión"
-            color="primary"
-            class="full-width q-mt-lg login-button"
-            type="submit"
-            unelevated
-            no-caps
-          />
-        </q-form>
-      </q-card-section>
-    </q-card>
-  </div>
-</template>
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useAuthStore } from '@stores/Auth/auth';
-import { useRouter } from 'vue-router';
-import { Notify } from 'quasar';
-
-const auth = useAuthStore();
-const router = useRouter();
-const email = ref<string>('');
-const password = ref<string>('');
-const isPwd = ref(true);
-
-const handleLogin = async () => {
-  try {
-    await auth.login(email.value, password.value);
-    return router.push('/');
-  } catch (e: any) {
-    Notify.create({
-      type: 'negative',
-      message: 'Credenciales inválidas',
-    });
-  }
-};
-
-onMounted(() => {
-  console.log('Login.vue montado correctamente');
-});
-</script>
-<style lang="scss" scoped>
-.login-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #3f51b5, #2196f3);
-  animation: fadeIn 1s ease;
-}
-
-.login-card {
-  width: 360px;
-  padding: 20px;
-  border-radius: 18px;
-  background-color: white;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-  animation: floatUp 0.8s ease;
-}
-
-.login-title {
-  margin: 0;
-  font-weight: 700;
-  font-size: 28px;
-  color: #3f51b5;
-}
-
-.input-group {
-  position: relative;
-}
-
-.animated-input {
-  transition: all 0.3s ease;
-}
-
-.login-button {
-  font-size: 16px;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  &:hover {
-    transform: scale(1.02);
-  }
-}
-
-/* Animaciones */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes floatUp {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-</style> -->
 <template>
   <div class="login-container">
     <!-- Background decorativo -->
@@ -318,7 +171,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, $secondary-color 0%, $white 50%, #e3f2fd 100%);
+  background: linear-gradient(135deg, $secondary 0%, $white 50%, #e3f2fd 100%);
   // padding: 20px;
   position: relative;
   overflow: hidden;
@@ -338,7 +191,7 @@ onMounted(() => {
   position: absolute;
   width: 40px;
   height: 20px;
-  background: rgba($primary-color, 0.1);
+  background: rgba($primary, 0.1);
   border-radius: 20px;
   animation: float 6s ease-in-out infinite;
 
@@ -364,7 +217,7 @@ onMounted(() => {
 .floating-cross {
   position: absolute;
   font-size: 30px;
-  color: rgba($primary-color, 0.15);
+  color: rgba($primary, 0.15);
   animation: rotate 8s linear infinite;
 
   &.cross-1 {
@@ -388,7 +241,7 @@ onMounted(() => {
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.08),
     0 8px 16px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba($primary-color, 0.1);
+  border: 1px solid rgba($primary, 0.1);
   overflow: hidden;
   position: relative;
   z-index: 1;
@@ -396,7 +249,7 @@ onMounted(() => {
 }
 
 .header-section {
-  background: linear-gradient(135deg, $primary-color, darken($primary-color, 10%));
+  background: linear-gradient(135deg, $primary, darken($primary, 10%));
   color: $white;
   padding: 24px 24px;
   position: relative;
@@ -506,13 +359,13 @@ onMounted(() => {
     transition: all 0.3s ease !important;
 
     &:hover {
-      border-color: rgba($primary-color, 0.3) !important;
+      border-color: rgba($primary, 0.3) !important;
     }
   }
 
   :deep(.q-field__control):focus-within {
-    border-color: $primary-color !important;
-    box-shadow: 0 0 0 3px rgba($primary-color, 0.1) !important;
+    border-color: $primary !important;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1) !important;
   }
 
   :deep(.q-field__label) {
@@ -530,7 +383,7 @@ onMounted(() => {
   transition: color 0.3s ease;
 
   &:hover {
-    color: $primary-color !important;
+    color: $primary !important;
   }
 }
 
@@ -545,7 +398,7 @@ onMounted(() => {
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.5px;
-  background: linear-gradient(135deg, $primary-color, darken($primary-color, 8%));
+  background: linear-gradient(135deg, $primary, darken($primary, 8%));
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
   overflow: hidden;
@@ -563,7 +416,7 @@ onMounted(() => {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba($primary-color, 0.3);
+    box-shadow: 0 8px 25px rgba($primary, 0.3);
 
     &::before {
       left: 100%;
@@ -604,7 +457,7 @@ onMounted(() => {
   }
 
   &:hover {
-    border-color: rgba($primary-color, 0.3);
+    border-color: rgba($primary, 0.3);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
