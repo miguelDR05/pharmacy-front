@@ -6,6 +6,7 @@ import { useQuasar } from 'quasar';
 import { useFetchHttp, IHttpResponse } from '@composables/useFetchHttp';
 import { resources } from '@api-resources/GeneralApiResource'; // Asegúrate de que esta ruta sea correcta
 import { IComboItem } from '@interfaces/IComboItem'; // Importa la interfaz del ítem de combo
+import { useComboStore } from '@stores/combos/comboStore';
 
 // Define el tipo para las claves de recursos que son combos
 // Esto asegura que solo puedas pasar claves de recursos que tengan un endpoint de combo.
@@ -24,13 +25,18 @@ type ComboResourceKey =
 export function useCombo() {
   const $q = useQuasar();
   const { fetchHttpResource, loading } = useFetchHttp(); // Reutiliza el composable useFetchHttp
+  // Instancia el store de Pinia
+  const comboStore = useComboStore();
 
   /**
    * Función para cargar datos de un combo específico.
    * @param resourceKey La clave del recurso de combo definida en `resources.ts` (ej. 'categoriesCombo').
    * @returns Una promesa que resuelve con un array de IComboItem[] o lanza un error.
    */
-  const loadComboData = async (resourceKey: ComboResourceKey): Promise<IComboItem[]> => {
+  const loadComboData = async (
+    resourceKey: ComboResourceKey,
+    saveToStorage: boolean = true,
+  ): Promise<IComboItem[]> => {
     // Verifica si la clave de recurso existe en el objeto 'resources'
     if (!resources[resourceKey]) {
       const errorMessage = `Recurso de combo '${resourceKey}' no encontrado en la definición de recursos.`;
@@ -68,7 +74,13 @@ export function useCombo() {
       }
 
       // Si la petición fue exitosa, retorna los datos del combo
-      return response.data;
+      if (saveToStorage) {
+        // Si saveToStorage es verdadero lo guardo en pinia con la misma clave de la resource
+        comboStore.setComboData(resourceKey, response.data);
+        return []; // o incluso `return response.data` si quieres retornarlo igual
+      } else {
+        return response.data;
+      }
     } catch (error: any) {
       // Captura errores de red o errores lanzados por fetchHttpResource
       const errorMessage =

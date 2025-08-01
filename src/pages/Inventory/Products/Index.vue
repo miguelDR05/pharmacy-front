@@ -101,17 +101,33 @@
 
     <!-- Tabla de productos -->
     <q-card flat>
+      <!--
+
+      flat bordered
+      title="Treats"
+      :rows="rows"
+      :columns="columns"
+      row-key="index"
+      virtual-scroll
+      v-model:pagination="pagination"
+      :rows-per-page-options="[0]"
+
+      :rows-per-page-options="[10, 25, 50, 100]"
+      -->
       <q-table
+        flat
+        bordered
         :rows="products"
         :columns="columns"
         row-key="id"
         :loading="loading"
-        :pagination="pagination"
         @request="onRequest"
         selection="multiple"
         v-model:selected="selectedProducts"
-        :rows-per-page-options="[10, 25, 50, 100]"
         class="product-table"
+        virtual-scroll
+        v-model:pagination="pagination"
+        :rows-per-page-options="[0]"
       >
         <!-- Slot para el estado del stock -->
         <template v-slot:body-cell-stock="props">
@@ -171,7 +187,7 @@
         <!-- Slot para las acciones -->
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
-            <div class="row q-gutter-xs">
+            <div class="row justify-center q-gutter-xs">
               <q-btn
                 v-if="hasPermission('products.view')"
                 icon="visibility"
@@ -408,43 +424,12 @@ const hasPermission = (permission: string): boolean => {
 };
 
 // Función para cargar todos los combos
-const loadAllCombos = async () => {
-  try {
-    // Carga las categorías
-    let comboKey: ComboDataKey = 'categories';
-    categoryOptions.value = await loadComboData('categoriesCombo');
-    comboStore.setComboData(comboKey, categoryOptions.value);
-    console.log('Categorías cargadas:', categoryOptions.value);
-
-    // Carga los laboratorios
-    comboKey = 'labs';
-    labOptions.value = await loadComboData('labsCombo');
-    comboStore.setComboData(comboKey, labOptions.value);
-    console.log('Laboratorios cargados:', labOptions.value);
-
-    // Carga de typo de options
-    comboKey = 'productTypes';
-    typeOptions.value = await loadComboData('productTypesCombo');
-    comboStore.setComboData(comboKey, typeOptions.value);
-    console.log('Tipo de productos cargados:', typeOptions.value);
-
-    // Carga de presentation de productos
-    comboKey = 'productPresentations';
-    presentationOptions.value = await loadComboData('productPresentationsCombo');
-    comboStore.setComboData(comboKey, presentationOptions.value);
-    console.log('Presentacion de productos cargados:', labOptions.value);
-
-    // Carga de almacenamiento
-    comboKey = 'storageConditions';
-    storageOptions.value = await loadComboData('storageConditionsCombo');
-    comboStore.setComboData(comboKey, storageOptions.value);
-    console.log('Almacenamientos cargados:', labOptions.value);
-
-    // Carga de estados
-  } catch (error) {
-    // Los errores ya son notificados por useCombo, aquí solo puedes logear si necesitas
-    console.error('Fallo al cargar uno o más combos:', error);
-  }
+const getAllCombos = () => {
+  categoryOptions.value = comboStore.getComboData('categoriesCombo');
+  labOptions.value = comboStore.getComboData('labsCombo');
+  typeOptions.value = comboStore.getComboData('productTypesCombo');
+  presentationOptions.value = comboStore.getComboData('productPresentationsCombo');
+  storageOptions.value = comboStore.getComboData('storageConditionsCombo');
 };
 
 const loadProducts = async () => {
@@ -693,27 +678,65 @@ const simulateApiCall = async (url: string, options: any = {}) => {
 onMounted(async () => {
   console.log('Productos montados');
   loading.value = true;
-  await loadAllCombos();
+  await Promise.all([
+    loadComboData('categoriesCombo'),
+    loadComboData('labsCombo'),
+    loadComboData('productTypesCombo'),
+    loadComboData('productPresentationsCombo'),
+    loadComboData('storageConditionsCombo'),
+  ]);
+  getAllCombos();
   await loadProducts();
 });
 </script>
 
 <style lang="scss" scoped>
 .product-table {
+  /* height or max-height is important */
+  height: calc(100vh - 300px);
+
   .q-table__top,
-  .q-table__bottom {
+  .q-table__bottom,
+  .thead tr:first-child th {
     padding: 12px 16px;
+    background-color: #00b4ff;
   }
 
-  .q-table tbody td {
-    padding: 8px 16px;
+  .thead tr th {
+    position: sticky;
+    z-index: 1;
   }
 
-  .q-table thead th {
-    padding: 12px 16px;
-    font-weight: 600;
-    color: #424242;
+  /* this will be the loading indicator */
+  .thead tr:last-child th {
+    top: 48px;
   }
+  /* height of all previous header rows */
+
+  .thead tr:first-child th {
+    top: 0;
+  }
+
+  /* prevent scrolling behind sticky top row on focus */
+  .tbody {
+    scroll-margin-top: 48px;
+  }
+  /* height of all previous header rows */
+
+  // .q-table__top,
+  // .q-table__bottom {
+  //   padding: 12px 16px;
+  // }
+
+  // .q-table tbody td {
+  //   padding: 8px 16px;
+  // }
+
+  // .q-table thead th {
+  //   padding: 12px 16px;
+  //   font-weight: 600;
+  //   color: #424242;
+  // }
 }
 
 .q-card {

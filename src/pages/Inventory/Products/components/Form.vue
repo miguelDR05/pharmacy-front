@@ -933,11 +933,11 @@ const closeDialog = () => {
 // Lifecycle
 onBeforeMount(() => {
   console.log('Combos montados');
-  categoryOptions.value = comboStore.getComboData('categories');
-  labOptions.value = comboStore.getComboData('labs');
-  typeOptions.value = comboStore.getComboData('productTypes');
-  presentationOptions.value = comboStore.getComboData('productPresentations');
-  storageOptions.value = comboStore.getComboData('storageConditions');
+  categoryOptions.value = comboStore.getComboData('categoriesCombo');
+  labOptions.value = comboStore.getComboData('labsCombo');
+  typeOptions.value = comboStore.getComboData('productTypesCombo');
+  presentationOptions.value = comboStore.getComboData('productPresentationsCombo');
+  storageOptions.value = comboStore.getComboData('storageConditionsCombo');
   statusOptions.value = [
     { label: 'Activo', value: 'active' },
     { label: 'Inactivo', value: 'inactive' },
