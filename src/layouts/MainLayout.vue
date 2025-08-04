@@ -934,7 +934,7 @@ onMounted(async () => {
   background: linear-gradient(135deg, $secondary 0%, lighten($secondary, 3%) 100%);
 
   .dark-drawer & {
-    background: linear-gradient(135deg, $dark-bg 0%, lighten($dark-bg, 5%) 100%);
+    background: linear-gradient(135deg, $dark 0%, lighten($dark, 5%) 100%);
     border-bottom-color: #3d3d3d;
   }
 
@@ -1134,7 +1134,7 @@ onMounted(async () => {
   background: #f8fffe;
 
   .dark-drawer & {
-    background: $dark-bg;
+    background: $dark;
   }
 }
 
@@ -1242,7 +1242,7 @@ onMounted(async () => {
   }
 
   .page-container {
-    background: $dark-bg;
+    background: $dark;
   }
 
   .menu-item,

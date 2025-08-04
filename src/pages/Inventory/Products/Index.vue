@@ -661,7 +661,7 @@ const simulateApiCall = async (url: string, options: any = {}) => {
 
 // Lifecycle
 onMounted(async () => {
-  console.log('Productos montados');
+  console.log('Index de productos montados');
   loading.value = true;
   await Promise.all([
     loadComboData('categoriesCombo'),

@@ -511,8 +511,11 @@ import { Product } from '../interface/ProductInterfaces';
 import { useFetchHttp } from '@composables/useFetchHttp';
 import { IComboItem } from '@interfaces/IComboItem'; // Importa la interfaz
 import { useComboStore } from '@stores/combos/comboStore';
+import { useAlert } from '@composables/alerts/useAlertDialog';
 
-// Props
+/****************************************************************************/
+/*                              PROPS                                       */
+/****************************************************************************/
 interface Props {
   modelValue: boolean;
   product?: any;
@@ -530,13 +533,18 @@ const emit = defineEmits<{
   saved: [];
 }>();
 
-// Composables
+/****************************************************************************/
+/*                              COMPOSABLE                                  */
+/****************************************************************************/
+const { singleAlert } = useAlert();
 // Instancia el store de Pinia
 const comboStore = useComboStore();
 const { fetchHttpResource } = useFetchHttp();
 const $q = useQuasar();
 
-// Referencias
+/****************************************************************************/
+/*                              DATA                                        */
+/****************************************************************************/
 const imageInput = ref<HTMLInputElement>();
 const formRef = ref();
 
@@ -583,13 +591,17 @@ const storageOptions = ref<IComboItem[]>([]);
 
 const statusOptions = ref<IComboItem[]>([]);
 
-// Computed
+/****************************************************************************/
+/*                              COMPUTED                                    */
+/****************************************************************************/
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
 });
 
-// Watchers
+/****************************************************************************/
+/*                              WATCHERS                                     */
+/****************************************************************************/
 watch(
   () => props.product,
   (newProduct) => {
@@ -634,7 +646,9 @@ watch(isOpen, (newValue) => {
   }
 });
 
-// Métodos
+/****************************************************************************/
+/*                              METHODS                                     */
+/****************************************************************************/
 const resetForm = () => {
   form.value = {
     name: '',
@@ -930,9 +944,11 @@ const closeDialog = () => {
   }
 };
 
-// Lifecycle
-onBeforeMount(() => {
-  console.log('Combos montados');
+/****************************************************************************/
+/*                              LIFECYCLE                                   */
+/****************************************************************************/
+onMounted(() => {
+  console.log('Combos montados en el form');
   categoryOptions.value = comboStore.getComboData('categoriesCombo');
   labOptions.value = comboStore.getComboData('labsCombo');
   typeOptions.value = comboStore.getComboData('productTypesCombo');

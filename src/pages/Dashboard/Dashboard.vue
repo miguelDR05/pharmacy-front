@@ -736,7 +736,7 @@ onMounted(() => {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, $primary, $accent-color);
+    background: linear-gradient(90deg, $primary, $accent);
   }
 
   &:hover {
