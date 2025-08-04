@@ -260,7 +260,8 @@ import { useFetchHttp, IHttpResponse } from '@composables/useFetchHttp';
 import { useCombo } from '@composables/useCombo';
 import { IComboItem } from '@interfaces/IComboItem';
 import { useComboStore } from '@stores/combos/comboStore';
-import { ComboDataKey } from '@/types/ComboDataKeys';
+import { useAlert } from '@composables/alerts/useAlertDialog';
+import { useNotify } from '@composables/alerts/useNotify';
 
 interface TableColumn {
   name: string;
@@ -287,6 +288,8 @@ const comboStore = useComboStore();
 const { loadComboData } = useCombo();
 const { fetchHttpResource } = useFetchHttp();
 const $q = useQuasar();
+const { singleAlert, confirmAlert } = useAlert();
+const { notify } = useNotify();
 
 // Estados reactivos
 // const products = ref<Product[]>([]);
@@ -506,30 +509,28 @@ const viewProduct = (product: Product) => {
   });
 };
 
-const confirmDelete = (product: Product) => {
-  $q.dialog({
-    title: 'Confirmar eliminación',
-    message: `¿Estás seguro de eliminar el producto "${product.name}"?`,
-    cancel: true,
-    persistent: true,
-    color: 'negative',
-  }).onOk(() => {
+const confirmDelete = async (product: Product) => {
+  const confirm: boolean = await confirmAlert(
+    { type: 'question' },
+    'Confirmar eliminación',
+    `¿Estás seguro de eliminar el producto "${product.name}"?`,
+  );
+
+  if (confirm) {
     void deleteProduct(product.id);
-  });
+  }
 };
 
-const confirmMultipleDelete = () => {
-  // Ya no es una función async
-  $q.dialog({
-    title: 'Confirmar eliminación múltiple',
-    message: `¿Estás seguro de eliminar ${selectedProducts.value.length} productos?`,
-    cancel: true,
-    persistent: true,
-    color: 'negative',
-  }).onOk(() => {
-    // Esta sí sigue siendo async porque usa await
+const confirmMultipleDelete = async () => {
+  const confirm: boolean = await confirmAlert(
+    { type: 'question' },
+    'Confirmar eliminación múltiple',
+    `¿Estás seguro de eliminar ${selectedProducts.value.length} productos?`,
+  );
+
+  if (confirm) {
     void deleteMultipleProducts();
-  });
+  }
 };
 
 const deleteProduct = async (id: number) => {
@@ -587,10 +588,12 @@ const showImageDialog = (imageUrl: string) => {
 
 const copyToClipboard = (text: string) => {
   void navigator.clipboard.writeText(text);
-  $q.notify({
+  notify({
     type: 'positive',
     message: 'Código copiado al portapapeles',
+    icon: 'mdi-content-copy',
     timeout: 1000,
+    position: 'bottom',
   });
 };
 

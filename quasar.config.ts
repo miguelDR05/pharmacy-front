@@ -111,6 +111,8 @@ export default defineConfig((ctx) => {
         '@composables': fileURLToPath(new URL('./src/composables', import.meta.url)),
         '@stores': fileURLToPath(new URL('./src/stores', import.meta.url)),
         '@types': fileURLToPath(new URL('./src/types', import.meta.url)),
+        '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
+        '@css': fileURLToPath(new URL('./src/css', import.meta.url)),
       },
     },
 

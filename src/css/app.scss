@@ -1,1 +1,48 @@
 // app global css in SCSS form
+:root {
+  --page-bg: #f8fffe; // light-page
+  --text-color: #2c3e50; // text-primary
+  --text-secondary: #7f8c8d;
+  --card-bg: #ffffff; // white
+  --hover-bg: #e8f8f7;
+}
+
+/* Scrollbar por defecto (modo claro) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c0c0c0 #f0f0f0;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #c0c0c0;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: #f0f0f0;
+}
+
+body.body--dark {
+  --page-bg: #1d1d1d; // dark-page
+  --text-color: #ffffff; // override text for dark
+  --text-secondary: #e8f8f7;
+  --card-bg: #1d1d1d; // dark-surface
+  --hover-bg: #7f8c8d;
+
+  * {
+    scrollbar-color: #555 #2c2c2c;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #555;
+  }
+
+  *::-webkit-scrollbar-track {
+    background-color: #2c2c2c;
+  }
+}

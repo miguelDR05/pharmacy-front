@@ -8,7 +8,16 @@ interface NotifyOptions {
   caption?: string;
   icon?: string;
   timeout?: number; // por defecto 3000ms
-  position?: 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center';
+  position?:
+    | 'top'
+    | 'bottom'
+    | 'left'
+    | 'right'
+    | 'top-left'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-right'
+    | 'center';
 }
 
 export function useNotify() {

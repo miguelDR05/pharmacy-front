@@ -1,9 +1,9 @@
 <template>
   <q-page>
-    <div class="dashboard-container">
+    <div class="dashboard-container" :class="{ 'dark-dashboard-container': $q.dark.isActive }">
       <!-- Header del Dashboard -->
-      <div class="dashboard-header">
-        <div class="header-content">
+      <div class="dashboard-header" :class="{ 'dark-dashboard-header': $q.dark.isActive }">
+        <div class="header-content" :class="{ 'dark-header-content': $q.dark.isActive }">
           <div class="header-left">
             <h1 class="dashboard-title">Dashboard PharmaCare</h1>
             <p class="dashboard-subtitle">Panel de control principal</p>
@@ -21,7 +21,12 @@
       <!-- KPI Cards -->
       <div class="kpi-section">
         <div class="kpi-grid">
-          <q-card v-for="kpi in kpis" :key="kpi.id" class="kpi-card" :class="`kpi-${kpi.type}`">
+          <q-card
+            v-for="kpi in kpis"
+            :key="kpi.id"
+            class="kpi-card"
+            :class="[`kpi-${kpi.type}`, { 'dark-kpi-card': $q.dark.isActive }]"
+          >
             <q-card-section class="kpi-content">
               <div class="kpi-icon">
                 <q-icon :name="kpi.icon" size="32px" />
@@ -658,13 +663,19 @@ onMounted(() => {
 
 .dashboard-container {
   padding: 24px;
-  background-color: $light-bg;
+  background-color: $light-page;
   min-height: 100vh;
+  &.dark-dashboard-container {
+    background: $dark;
+  }
 }
 
 // Header
 .dashboard-header {
   margin-bottom: 32px;
+  &.dark-dashboard-header {
+    background: $dark;
+  }
 }
 
 .header-content {
@@ -672,17 +683,21 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 24px 32px;
-  background: $white;
+  background: $light-page;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid $border-color;
+
+  &.dark-header-content {
+    background: $dark-page;
+  }
 }
 
 .header-left {
   .dashboard-title {
     font-size: 32px;
     font-weight: 700;
-    color: $text-primary;
+    color: var(--text-color);
     margin: 0 0 4px;
     letter-spacing: -0.02em;
   }
@@ -729,6 +744,10 @@ onMounted(() => {
   position: relative;
   overflow: hidden;
 
+  &.dark-kpi-card {
+    background: $dark-page;
+  }
+
   &::before {
     content: '';
     position: absolute;
@@ -770,7 +789,7 @@ onMounted(() => {
   .kpi-value {
     font-size: 28px;
     font-weight: 700;
-    color: $text-primary;
+    color: var(--text-color);
     line-height: 1;
     margin-bottom: 4px;
   }
@@ -834,7 +853,7 @@ onMounted(() => {
     h3 {
       font-size: 18px;
       font-weight: 600;
-      color: $text-primary;
+      color: var(--text-color);
       margin: 0;
     }
   }
@@ -871,7 +890,8 @@ onMounted(() => {
   align-items: center;
   padding: 20px 24px;
   border-bottom: 1px solid $border-color;
-  background: lighten($light-bg, 2%);
+  background-color:
+    linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), var(--card-bg);
 
   .table-title {
     display: flex;
@@ -881,7 +901,7 @@ onMounted(() => {
     h3 {
       font-size: 18px;
       font-weight: 600;
-      color: $text-primary;
+      color: var(--text-color);
       margin: 0;
     }
   }
@@ -897,8 +917,9 @@ onMounted(() => {
   }
 
   :deep(.q-table thead th) {
-    background-color: lighten($light-bg, 2%);
-    color: $text-primary;
+    background-color:
+      linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), var(--card-bg);
+    color: var(--text-color);
     font-weight: 600;
     font-size: 13px;
     text-transform: uppercase;
@@ -907,6 +928,7 @@ onMounted(() => {
 
   :deep(.q-table tbody tr:hover) {
     background-color: $secondary;
+    color: $dark;
   }
 
   :deep(.q-table tbody td) {
@@ -945,7 +967,7 @@ onMounted(() => {
     h3 {
       font-size: 18px;
       font-weight: 600;
-      color: $text-primary;
+      color: var(--text-color);
       margin: 0;
     }
   }

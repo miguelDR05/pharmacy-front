@@ -1133,8 +1133,8 @@ onMounted(async () => {
 .page-container {
   background: #f8fffe;
 
-  .dark-drawer & {
-    background: $dark;
+  .dark-page-container & {
+    background: $dark-page;
   }
 }
 

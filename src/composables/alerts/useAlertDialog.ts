@@ -7,12 +7,13 @@ interface TypeAlert {
 }
 
 // Íconos asociados a cada tipo de alerta
+// C:\dev_projects\quasar_projects\pharmacy-front\src\assets\images\alerts\question.png
 const alertIcons: Record<AlertType, string> = {
-  success: 'src/assets/images/alerts/positive.png',
-  error: 'src/assets/images/alerts/negative.png',
-  question: 'src/assets/images/alerts/question.png',
-  information: 'src/assets/images/alerts/information.png',
-  warning: 'src/assets/images/alerts/warning.png',
+  success: '/src/assets/images/alerts/success.png',
+  error: '/src/assets/images/alerts/error.png',
+  question: '/src/assets/images/alerts/question.png',
+  information: '/src/assets/images/alerts/information.png',
+  warning: '/src/assets/images/alerts/warning.png',
 };
 
 function buildDialogMessage(title: string, imageSrc: string, message: string): string {
@@ -37,7 +38,7 @@ export function useAlert() {
   const singleAlert = async (
     { type }: TypeAlert,
     title: string,
-    message: string
+    message: string,
   ): Promise<boolean> => {
     const imageSrc = alertIcons[type];
 
@@ -62,7 +63,7 @@ export function useAlert() {
     title: string,
     message: string,
     okLabel = 'Aceptar',
-    cancelLabel = 'Cancelar'
+    cancelLabel = 'Cancelar',
   ): Promise<boolean> => {
     const imageSrc = alertIcons[type];
 
@@ -93,7 +94,7 @@ export function useAlert() {
     { type }: TypeAlert,
     title: string,
     message: string,
-    defaultValue: string
+    defaultValue: string,
   ): Promise<string | null> => {
     const imageSrc = alertIcons[type];
 
