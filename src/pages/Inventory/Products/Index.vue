@@ -252,7 +252,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { useQuasar, Dark } from 'quasar';
+import { useQuasar, Dark, QTableColumn } from 'quasar';
 import ProductDialog from './components/Form.vue';
 import { resources } from './api-resource/ApiResource';
 import { Product } from './interface/ProductInterfaces';
@@ -262,18 +262,6 @@ import { IComboItem } from '@interfaces/IComboItem';
 import { useComboStore } from '@stores/combos/comboStore';
 import { useAlert } from '@composables/alerts/useAlertDialog';
 import { useNotify } from '@composables/alerts/useNotify';
-
-interface TableColumn {
-  name: string;
-  label: string;
-  field: string | ((row: any) => any);
-  required?: boolean;
-  align?: 'left' | 'right' | 'center';
-  sortable?: boolean;
-  format?: (val: any) => string;
-  style?: string;
-  headerStyle?: string;
-}
 
 // Define una interfaz para la estructura de los datos que esperas de 'observations'
 interface ProductData {
@@ -334,7 +322,7 @@ const stockStatusOptions = ref<IComboItem[]>([
 ]);
 
 // Columnas de la tabla
-const columns: TableColumn[] = [
+const columns: QTableColumn[] = [
   {
     name: 'image',
     label: '',
@@ -442,13 +430,13 @@ const loadProducts = async () => {
   } catch (error: any) {
     if (error instanceof Error) {
       console.error('Error al cargar datos:', error.message);
-      $q.notify({
+      notify({
         type: 'negative',
         message: error.message || 'Error desconocido.',
       });
     } else {
       console.error('Error desconocido:', error);
-      $q.notify({
+      notify({
         type: 'negative',
         message: 'Error inesperado.',
       });
@@ -537,16 +525,17 @@ const deleteProduct = async (id: number) => {
   try {
     await simulateApiCall(`/api/products/${id}`, { method: 'DELETE' });
 
-    $q.notify({
+    notify({
       type: 'positive',
       message: 'Producto eliminado correctamente',
     });
 
     await loadProducts();
   } catch (error) {
-    $q.notify({
+    console.log(error);
+    notify({
       type: 'negative',
-      message: 'Error al eliminar producto',
+      message: 'Error al eliminar productos',
     });
   }
 };
@@ -559,7 +548,7 @@ const deleteMultipleProducts = async () => {
       data: { ids },
     });
 
-    $q.notify({
+    notify({
       type: 'positive',
       message: `${selectedProducts.value.length} productos eliminados`,
     });
@@ -568,7 +557,7 @@ const deleteMultipleProducts = async () => {
     await loadProducts();
   } catch (error: any) {
     console.log(error);
-    $q.notify({
+    notify({
       type: 'negative',
       message: 'Error al eliminar productos',
     });
@@ -592,8 +581,6 @@ const copyToClipboard = (text: string) => {
     type: 'positive',
     message: 'Código copiado al portapapeles',
     icon: 'mdi-content-copy',
-    timeout: 1000,
-    position: 'bottom',
   });
 };
 
